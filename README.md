@@ -4,12 +4,15 @@ ALUR KODE
 1. Pilihan Log in atau sign up
 2. Log in
 3. Menu awal 
+ 
   A. Cek pemesanan
       - Masukkan nomor pemesanan
       - Summary
+ 
   B. Pilihan cancel tiket
       - Menampilkan daftar tiket yang dimiliki
       - Batalkan tiket, ya/tidak?
+ 
   C. Book
       - Pilih tujuan dan asal stasiun
       - Jumlah penumpang
