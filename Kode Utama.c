@@ -140,12 +140,13 @@ int main() {
     int choice;
 
     while (1) {
-        printf("\n=== Welcome to the Train Reservation System ===\n");
-        printf("1. Signup\n");
-        printf("2. Login\n");
-        printf("3. Exit\n");
-        printf("Enter your choice: ");
+        printf("\n=== Selamat Datang di KAI Access Lite Version ===\n");
+        printf("1. Daftar\n");
+        printf("2. Masuk\n");
+        printf("3. Keluar\n");
+        printf("Masukkan pilihan Anda: ");
         scanf("%d", &choice);
+
 
         switch (choice) {
             case 1:
@@ -167,44 +168,44 @@ int main() {
 
 void signup() {
     char username[20], password[20];
-    printf("Enter a username: ");
+    printf("Buat username: ");
     scanf("%s", username);
-    printf("Enter a password: ");
+    printf("Buat password: ");
     scanf("%s", password);
 
     if (findUser(username, password) != NULL) {
-        printf("Username already exists. Please try a different username.\n");
+        printf("Username sudah ada. Silakan coba username lain.\n");
     } else {
         addUser(username, password);
-        printf("Signup successful. You can now log in.\n");
+        printf("Berhasil mendaftar. Silakan log in pada menu awal.\n");
     }
 }
 
 void login() {
     char username[20], password[20];
-    printf("Enter your username: ");
+    printf("Masukkan username: ");
     scanf("%s", username);
-    printf("Enter your password: ");
+    printf("Masukkan password: ");
     scanf("%s", password);
 
     User* user = findUser(username, password);
     if (user != NULL) {
-        printf("Login successful. Welcome, %s!\n", username);
+        printf("Berhasil Masuk. Selamat Datang, %s!\n", username);
         userMenu();
     } else {
-        printf("Invalid username or password. Please try again.\n");
+        printf("Username dan password salah. Silakan coba lagi.\n");
     }
 }
 
 void userMenu() {
     int choice;
     do {
-        printf("\n=== User Menu ===\n");
-        printf("1. Book a Ticket\n");
-        printf("2. Cancel a Ticket\n");
-        printf("3. Check Train Status\n");
-        printf("4. Logout\n");
-        printf("Enter your choice: ");
+        printf("\n=== Menu Utama KAI Access Lite Version ===\n");
+        printf("1. Pesan Tiket Kereta\n");
+        printf("2. Batalkan Pemesanan\n");
+        printf("3. Cek Status Pemesanan\n");
+        printf("4. Keluar\n");
+        printf("Masukkan pilihan Anda: ");
         scanf("%d", &choice);
 
         switch (choice) {
@@ -246,21 +247,21 @@ void bookTicket() {
     printf("Pilih angka untuk kereta yang ingin dipesan: ");
     scanf("%d", &pilihanKereta);
 
-    printf("Enter number of passengers: ");
+    printf("Jumlah Penumpang: ");
     scanf("%d", &numPassengers);
 
     seatMatrix(numPassengers, seatNumbers);
 
-    printf("Available ticket classes:\n1. Economy\n2. Business\n3. First Class\n");
-    printf("Enter ticket class: ");
+    printf("Kelas Kereta:\n1. Ekonomi\n2. Bisnis\n3. VIP\n");
+    printf("Masukkan kelas kereta: ");
     scanf("%s", ticketClass);
 
     for (i = 0; i < numPassengers; i++) {
-        printf("Enter name of passenger %d: ", i + 1);
+        printf("Masukkan nama penumpang %d: ", i + 1);
         scanf("%s", name);
-        printf("Enter age of passenger %d: ", i + 1);
+        printf("Masukkan usia penumpang %d: ", i + 1);
         scanf("%d", &age);
-        printf("Enter personal identification number of passenger %d: ", i + 1);
+        printf("Masukkan NIK penumpang %d: ", i + 1);
         scanf("%s", id);
 
         addPassenger(source, name, age, id, seatNumbers[i], destination, ticketClass);
@@ -284,18 +285,18 @@ void addPassenger(char* source, char* name, int age, char* id, int seatNumber, c
 
 void printBookingSummary(char* source, char* destination, int numPassengers, char* ticketClass, int* seatNumbers) {
     Passenger* temp = passengers;
-    printf("\n=== Booking Summary ===\n");
-    printf("Destination: %s\n", destination);
-    printf("Source: %s\n", source);
-    printf("Number of Passengers: %d\n", numPassengers);
-    printf("Ticket Class: %s\n", ticketClass);
+    printf("\n=== Status Pemesanan ===\n");
+    printf("Tujuan: %s\n", destination);
+    printf("Asal: %s\n", source);
+    printf("Jumlah Penumpang: %d\n", numPassengers);
+    printf("Kelas Tiket: %s\n", ticketClass);
 
     for (int i = 0; i < numPassengers; i++) {
-        printf("Passenger %d: \n", i + 1);
-        printf("Name: %s\n", temp->name);
-        printf("Age: %d\n", temp->age);
-        printf("ID: %s\n", temp->id);
-        printf("Seat Number: %d\n", seatNumbers[i]);
+        printf("Penumpang %d: \n", i + 1);
+        printf("Nama: %s\n", temp->name);
+        printf("Usia: %d\n", temp->age);
+        printf("NIK: %s\n", temp->id);
+        printf("Nomor Kursi: %d\n", seatNumbers[i]);
         temp = temp->next;
     }
     printf("\n");
@@ -304,19 +305,19 @@ void printBookingSummary(char* source, char* destination, int numPassengers, cha
 void checkTrainStatus() {
     Passenger* temp = passengers;
     if (temp == NULL) {
-        printf("No bookings available.\n");
+        printf("Tidak ada pemesanan tiket.\n");
         return;
     }
 
-    printf("\n=== Train Status ===\n");
+    printf("\n=== Status Pemesanan ===\n");
     while (temp != NULL) {
-        printf("Destination: %s\n", temp->destination);
-        printf("Source: %s\n", temp->source);
-        printf("Passenger Name: %s\n", temp->name);
-        printf("Age: %d\n", temp->age);
-        printf("ID: %s\n", temp->id);
-        printf("Seat Number: %d\n", temp->seatNumber);
-        printf("Ticket Class: %s\n", temp->ticketClass);
+        printf("Tujuan: %s\n", temp->destination);
+        printf("Asal: %s\n", temp->source);
+        printf("Nama: %s\n", temp->name);
+        printf("Usia: %d\n", temp->age);
+        printf("NIK: %s\n", temp->id);
+        printf("Nomor Kursi: %d\n", temp->seatNumber);
+        printf("Kelas Tiket: %s\n", temp->ticketClass);
         printf("-----------------------\n");
         temp = temp->next;
     }
