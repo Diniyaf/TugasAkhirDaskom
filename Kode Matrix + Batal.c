@@ -385,15 +385,14 @@ void DisplayPenumpang(){
 }
 
 void batalkanTiket(){
-    Penumpang* temp = penumpang;
-    if (temp == NULL) {
+    if (jumlahPenumpang == 0) {
         printf("Tidak ada pemesanan tiket.\n");
         return;
     }
 
     printf("\n=== Batalkan Tiket ===\n");
-    while (temp != NULL) {
     DisplayPenumpang();
+
     printf("Masukkan nomor penumpang yang ingin dibatalkan: ");
     int nomorPembatalan;
     scanf("%d", &nomorPembatalan);
@@ -410,5 +409,4 @@ void batalkanTiket(){
     jumlahPenumpang--;
 
     printf("Tiket berhasil dibatalkan.\n");
-} 
 }
