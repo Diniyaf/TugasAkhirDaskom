@@ -171,6 +171,7 @@ void signup() {
     scanf("%s", username);
     printf("Buat password: ");
     scanf("%s", password);
+    
 
     if (findUser(username, password) != NULL) {
         printf("Username sudah ada. Silakan coba username lain.\n");
@@ -455,4 +456,3 @@ void addUser(char* username, char* password) {
     newUser->next = users;
     users = newUser;
 }
-
