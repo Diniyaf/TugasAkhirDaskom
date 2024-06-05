@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <conio.h>
 
 typedef struct user {
     char username[20];
@@ -21,10 +20,14 @@ typedef struct penumpang {
     struct penumpang* next;
 } Penumpang;
 
+#define ROWS 15
+#define COLS 4
+
 User* users = NULL;
 Penumpang* penumpang = NULL;
-Penumpang daftarPenumpang[100];
 int jumlahPenumpang = 0;
+int seatMatrix[ROWS][COLS];
+
 
 void signup();
 void login();
@@ -34,13 +37,14 @@ void userMenu();
 void bookTicket();
 void tampilkanPilihanStasiun();
 void tampilkanPilihanKereta(int asal, int tujuan);
-void seatMatrix(int JmlPenumpang, int* NoKursi);
+void initializeSeats();
+void initializeSeats();
+void displaySeats();
+void chooseSeat(int* seat);
 void tampilkanPilihanKelas();
 void addPassenger(char* nama, int usia, char* NIK, int NoKursi, char* stasiunTujuan, char* stasiunAsal, char* KelasTiket, char* namaKereta);
 void printBookingSummary(char* stasiunAsal, char* stasiunTujuan, int JmlPenumpang, char* KelasTiket, int* NoKursi, char* namaKereta);
 void checkTrainStatus();
-void DisplayPenumpang();
-void tambahPenumpang(char* nama, int usia, char* NIK, int NoKursi, char* stasiunTujuan, char* stasiunAsal, char* KelasTiket, char* namaKereta);
 void batalkanTiket();
 
 int main() {
@@ -51,7 +55,7 @@ int main() {
         printf("1. Daftar\n");
         printf("2. Masuk\n");
         printf("3. Keluar\n");
-        printf("Masukkan pilihan Anda: ");
+        printf("Masukkan pilihan Anda(1-3): ");
         scanf("%d", &choice);
 
         switch (choice) {
@@ -126,6 +130,7 @@ void login() {
     }
 }
 
+
 void userMenu() {
     int choice;
     do {
@@ -134,7 +139,7 @@ void userMenu() {
         printf("2. Batalkan Pemesanan\n");
         printf("3. Cek Status Pemesanan\n");
         printf("4. Keluar\n");
-        printf("Masukkan pilihan Anda: ");
+        printf("Masukkan pilihan Anda(1-4): ");
         scanf("%d", &choice);
         switch (choice) {
             case 1:
@@ -155,6 +160,7 @@ void userMenu() {
     } while (choice != 4);
 }
 
+
 void bookTicket() {
     int JmlPenumpang, usia, NoKursi[10], i, pilihanKereta, pilihanKelas;
     char nama[30], KelasTiket[20], NIK[17], stasiunTujuan[30], stasiunAsal[30], namaKereta[30];
@@ -162,11 +168,11 @@ void bookTicket() {
     while (1) {
         tampilkanPilihanStasiun();
 
-        printf("Masukkan angka untuk stasiun asal: ");
+        printf("Masukkan angka untuk stasiun asal(1-4): ");
         int stasiunAsalIdx;
         scanf("%d", &stasiunAsalIdx);
 
-        printf("Masukkan angka untuk stasiun tujuan: ");
+        printf("Masukkan angka untuk stasiun tujuan(1-4): ");
         int stasiunTujuanIdx;
         scanf("%d", &stasiunTujuanIdx);
 
@@ -217,7 +223,15 @@ void bookTicket() {
     printf("Masukkan jumlah penumpang: ");
     scanf("%d", &JmlPenumpang);
 
-    seatMatrix(JmlPenumpang, NoKursi);
+for (i = 0; i < JmlPenumpang; i++) {
+    displaySeats();
+    chooseSeat(&NoKursi[i]);
+        printf("Masukkan nama penumpang %d: ", i + 1);
+        scanf("%s", nama);
+        printf("Masukkan usia penumpang %d: ", i + 1);
+        scanf("%d", &usia);
+        printf("Masukkan NIK penumpang %d: ", i + 1);
+        scanf("%s", NIK);
 
     tampilkanPilihanKelas();
     printf("Masukkan angka untuk kelas tiket (1-3): ");
@@ -225,16 +239,8 @@ void bookTicket() {
     const char* kelas[] = {"Ekonomi", "Bisnis", "Eksekutif"};
     strcpy(KelasTiket, kelas[pilihanKelas - 1]);
 
-    for (i = 0; i < JmlPenumpang; i++) {
-        printf("Masukkan nama penumpang %d: ", i + 1);
-        scanf("%s", nama);
-        printf("Masukkan usia penumpang %d: ", i + 1);
-        scanf("%d", &usia);
-        printf("Masukkan NIK penumpang %d: ", i + 1);
-        scanf("%s", NIK);
-        addPassenger(nama, usia, NIK, NoKursi[i], stasiunTujuan, stasiunAsal, KelasTiket, namaKereta);
+    addPassenger(nama, usia, NIK, NoKursi[i], stasiunTujuan, stasiunAsal, KelasTiket, namaKereta);
     }
-
     printBookingSummary(stasiunAsal, stasiunTujuan, JmlPenumpang, KelasTiket, NoKursi, namaKereta);
 }
 
@@ -246,6 +252,7 @@ void tampilkanPilihanStasiun() {
         printf("%d. Stasiun %s\n", i + 1, stasiun[i]);
     }
 }
+
 
 void tampilkanPilihanKereta(int asal, int tujuan) {
     const char* kereta[4][4][2] = {
@@ -287,27 +294,48 @@ void tampilkanPilihanKereta(int asal, int tujuan) {
     }
 }
 
-void seatMatrix(int JmlPenumpang, int* NoKursi) {
-    int i;
-    printf("\t           -:Nomor Kursi:-        \n");
-    printf("\t(A)   (B)       (C)   (D)       (E)\n\n");
-    printf("\t01    02        03    04        05\n\n");
-    printf("\t06    07        08    09        10\n");
-    printf("\t11    12        13    14        15\n\n");
-    printf("\t16    17        18    19        20\n");
-    printf("\t21    22        23    24        25\n\n");
-    printf("\t26    27        28    29        30\n");
-    printf("\t31    32        33    34        35\n\n");
-    printf("\t36    37        38    39        40\n");
-    printf("\t41    42        43    44        45\n\n");
-    printf("\t46    47        48    49        50\n");
-    printf("\t51    52        53    54        55\n\n");
-    printf("\t56    57        58    59        60\n");
-    printf("Pilih nomor kursi: \n");
-    for (i = 0; i < JmlPenumpang; i++) {
-        scanf("%d", &NoKursi[i]);
+void initializeSeats() {
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            seatMatrix[i][j] = 0;
+        }
     }
 }
+
+void displaySeats() {
+    printf("\n=== Denah Kursi Kereta ===\n");
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            if (seatMatrix[i][j] == 0) {
+                printf("%3d ", i * COLS + j + 1);  // Menampilkan nomor kursi
+            } else {
+                printf(" X  ");
+            }
+        }
+        printf("\n");
+    }
+}
+
+
+void chooseSeat(int* seat){
+    int row, col;
+    int i=0;
+    printf("Masukkan nomor kursi yang diinginkan penumpang %d: ", i+1);
+    scanf("%d", seat);
+
+    // Menghitung baris dan kolom dari nomor kursi
+    row = (*seat - 1) / COLS;
+    col = (*seat - 1) % COLS;
+
+    // Memeriksa apakah kursi tersedia
+    if (seatMatrix[row][col] == 0) {
+        seatMatrix[row][col] = 1;  // Menandai kursi sebagai dipesan
+    } else {
+        printf("Kursi telah dipesan. Silakan pilih kursi lain.\n");
+        chooseSeat(seat);  // Meminta pengguna untuk memilih kursi lain
+    }
+}
+
 
 void tampilkanPilihanKelas() {
     const char* kelas[] = {"Ekonomi", "Bisnis", "Eksekutif"};
@@ -335,19 +363,20 @@ void addPassenger(char* nama, int usia, char* NIK, int NoKursi, char* stasiunTuj
 
 void printBookingSummary(char* stasiunAsal, char* stasiunTujuan, int JmlPenumpang, char* KelasTiket, int* NoKursi, char* namaKereta) {
     Penumpang* temp = penumpang;
-    printf("\n=== Status Pemesanan ===\n");
-    printf("Asal: %s\n", stasiunAsal);
-    printf("Tujuan: %s\n", stasiunTujuan);
-    printf("Nama Kereta: %s\n", namaKereta);
+    printf("\n=== Ringkasan Pemesanan Tiket ===\n");
+    printf("Stasiun Asal: %s\n", stasiunAsal);
+    printf("Stasiun Tujuan: %s\n", stasiunTujuan);
+    printf("Kereta: %s\n", namaKereta);
     printf("Jumlah Penumpang: %d\n", JmlPenumpang);
-    printf("Kelas Tiket: %s\n", KelasTiket);
-
+    
     for (int i = 0; i < JmlPenumpang; i++) {
         printf("Penumpang %d: \n", i + 1);
         printf("Nama: %s\n", temp->nama);
         printf("Usia: %d\n", temp->usia);
         printf("NIK: %s\n", temp->NIK);
+        printf("Kelas Tiket: %s\n", KelasTiket);
         printf("Nomor Kursi: %d\n", NoKursi[i]);
+        printf("\n");
         temp = temp->next;
     }
     printf("\n");
@@ -357,74 +386,63 @@ void printBookingSummary(char* stasiunAsal, char* stasiunTujuan, int JmlPenumpan
 void checkTrainStatus() {
     Penumpang* temp = penumpang;
     if (temp == NULL) {
-        printf("Tidak ada pemesanan tiket.\n");
+        printf("Belum ada tiket yang dipesan.\n");
         return;
     }
 
-    printf("\n=== Status Pemesanan ===\n");
+    printf("\n=== Daftar Penumpang ===\n");
+    int counter = 1;
     while (temp != NULL) {
-        printf("Tujuan: %s\n", temp->stasiunTujuan);
-        printf("Asal: %s\n", temp->stasiunAsal);
-        printf("Nama: %s\n", temp->nama);
-        printf("Usia: %d\n", temp->usia);
-        printf("NIK: %s\n", temp->NIK);
-        printf("Nomor Kursi: %d\n", temp->NoKursi);
-        printf("Kelas Tiket: %s\n", temp->KelasTiket);
-        printf("Nama Kereta: %s\n", temp->namaKereta);
-        printf("-----------------------\n");
+        printf("%d. Nama: %s\n", counter, temp->nama);
+        printf("   Usia: %d\n", temp->usia);
+        printf("   NIK: %s\n", temp->NIK);
+        printf("   No Kursi: %d\n", temp->NoKursi);
+        printf("   Stasiun Asal: %s\n", temp->stasiunAsal);
+        printf("   Stasiun Tujuan: %s\n", temp->stasiunTujuan);
+        printf("   Kelas Tiket: %s\n", temp->KelasTiket);
+        printf("   Nama Kereta: %s\n", temp->namaKereta);
+        printf("========================\n");
         temp = temp->next;
+        counter++;
     }
 }
 
 
 void batalkanTiket(){
-    if (jumlahPenumpang == 0) {
+    if (penumpang == 0) {
         printf("Tidak ada pemesanan tiket.\n");
         return;
     }
+    checkTrainStatus();
 
-    printf("\n=== Batalkan Tiket ===\n");
-    DisplayPenumpang();
-
+    int nomorPenumpang;
     printf("Masukkan nomor penumpang yang ingin dibatalkan: ");
-    int nomorPembatalan;
-    scanf("%d", &nomorPembatalan);
+    scanf("%d", &nomorPenumpang);
 
-    if (nomorPembatalan < 1 || nomorPembatalan > jumlahPenumpang) {
-        printf("Nomor penumpang tidak valid. Silakan coba lagi.\n");
-        return;
+    Penumpang* temp = penumpang;
+    Penumpang* prev = NULL;
+
+    int counter = 1;
+    while (temp != NULL) {
+        if (counter == nomorPenumpang) {
+            int row = (temp->NoKursi - 1) / COLS;
+            int col = (temp->NoKursi - 1) % COLS;
+            seatMatrix[row][col] = 0;
+
+            if (prev == NULL) {
+                penumpang = temp->next;
+            } else {
+                prev->next = temp->next;
+            }
+            free(temp);
+            jumlahPenumpang--;
+            printf("Tiket untuk penumpang nomor %d berhasil dibatalkan.\n", nomorPenumpang);
+            return;
+        }
+        prev = temp;
+        temp = temp->next;
+        counter++;
     }
 
-    for (int i = nomorPembatalan - 1; i < jumlahPenumpang - 1; i++) {
-        daftarPenumpang[i] = daftarPenumpang[i + 1];
-    }
-
-    jumlahPenumpang--;
-
-    printf("Tiket berhasil dibatalkan.\n");
+    printf("Penumpang dengan nomor %d tidak ditemukan.\n", nomorPenumpang);
 }
-
-
-void DisplayPenumpang(){
-    printf("Daftar Penumpang yang Sudah Dipesan:\n");
-    for (int i = 0; i < jumlahPenumpang; i++) {
-    printf("%d. Nama: %s, NIK: %s, No Kursi: %d, Kereta: %s, Kelas: %s, Asal: %s, Tujuan: %s\n", 
-            i + 1, daftarPenumpang[i].nama, daftarPenumpang[i].NIK, daftarPenumpang[i].NoKursi, 
-            daftarPenumpang[i].namaKereta, daftarPenumpang[i].KelasTiket, daftarPenumpang[i].stasiunAsal, 
-            daftarPenumpang[i].stasiunTujuan);
-    }
-}
-
-
-void tambahPenumpang(char* nama, int usia, char* NIK, int NoKursi, char* stasiunTujuan, char* stasiunAsal, char* KelasTiket, char* namaKereta) {
-    strcpy(daftarPenumpang[jumlahPenumpang].nama, nama);
-    daftarPenumpang[jumlahPenumpang].usia = usia;
-    strcpy(daftarPenumpang[jumlahPenumpang].NIK, NIK);
-    daftarPenumpang[jumlahPenumpang].NoKursi = NoKursi;
-    strcpy(daftarPenumpang[jumlahPenumpang].stasiunTujuan, stasiunTujuan);
-    strcpy(daftarPenumpang[jumlahPenumpang].stasiunAsal, stasiunAsal);
-    strcpy(daftarPenumpang[jumlahPenumpang].KelasTiket, KelasTiket);
-    strcpy(daftarPenumpang[jumlahPenumpang].namaKereta, namaKereta);
-    jumlahPenumpang++;
-}
- 
