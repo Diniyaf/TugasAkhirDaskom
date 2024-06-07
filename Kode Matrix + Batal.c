@@ -38,12 +38,12 @@ void bookTicket();
 void tampilkanPilihanStasiun();
 void tampilkanPilihanKereta(int asal, int tujuan);
 void initializeSeats();
-void initializeSeats();
 void displaySeats();
 void chooseSeat(int* seat);
 void tampilkanPilihanKelas();
 void addPassenger(char* nama, int usia, char* NIK, int NoKursi, char* stasiunTujuan, char* stasiunAsal, char* KelasTiket, char* namaKereta);
-void printBookingSummary(char* stasiunAsal, char* stasiunTujuan, int JmlPenumpang, char* KelasTiket, int* NoKursi, char* namaKereta);
+int hitungTotalBiaya(int JmlPenumpang, int* usia, char* KelasTiket);
+void printBookingSummary(char* stasiunAsal, char* stasiunTujuan, int JmlPenumpang, char* KelasTiket, int* NoKursi, char* namaKereta, int biayaKereta);
 void checkTrainStatus();
 void batalkanTiket();
 
@@ -186,8 +186,8 @@ void bookTicket() {
         printf("Pilih angka untuk kereta yang ingin dipesan: ");
         scanf("%d", &pilihanKereta);
 
-        const char* stasiun[] = {"Gambir", "Surabaya Gubeng", "Lempuyangan", "Bandung"};
-        const char* kereta[4][4][2] = {
+        char* stasiun[] = {"Gambir", "Surabaya Gubeng", "Lempuyangan", "Bandung"};
+        char* kereta[4][4][2] = {
             {
                 {"", ""}, 
                 {"Kereta Sembrani", "Kereta Gumarang"}, 
@@ -236,17 +236,18 @@ for (i = 0; i < JmlPenumpang; i++) {
     tampilkanPilihanKelas();
     printf("Masukkan angka untuk kelas tiket (1-3): ");
     scanf("%d", &pilihanKelas);
-    const char* kelas[] = {"Ekonomi", "Bisnis", "Eksekutif"};
+    char* kelas[] = {"Ekonomi", "Bisnis", "Eksekutif"};
     strcpy(KelasTiket, kelas[pilihanKelas - 1]);
 
     addPassenger(nama, usia, NIK, NoKursi[i], stasiunTujuan, stasiunAsal, KelasTiket, namaKereta);
     }
-    printBookingSummary(stasiunAsal, stasiunTujuan, JmlPenumpang, KelasTiket, NoKursi, namaKereta);
+    int totalBiaya = hitungTotalBiaya(JmlPenumpang, usia, KelasTiket);
+    printBookingSummary(stasiunAsal, stasiunTujuan, JmlPenumpang, KelasTiket, NoKursi, namaKereta, totalBiaya);
 }
 
 
 void tampilkanPilihanStasiun() {
-    const char* stasiun[] = {"Gambir", "Surabaya Gubeng", "Lempuyangan", "Bandung"};
+    char* stasiun[] = {"Gambir", "Surabaya Gubeng", "Lempuyangan", "Bandung"};
     printf("Pilihan Stasiun:\n");
     for (int i = 0; i < 4; i++) {
         printf("%d. Stasiun %s\n", i + 1, stasiun[i]);
@@ -255,7 +256,7 @@ void tampilkanPilihanStasiun() {
 
 
 void tampilkanPilihanKereta(int asal, int tujuan) {
-    const char* kereta[4][4][2] = {
+    char* kereta[4][4][2] = {
         {
             {"", ""}, 
             {"Kereta Sembrani", "Kereta Gumarang"}, 
@@ -283,7 +284,7 @@ void tampilkanPilihanKereta(int asal, int tujuan) {
     };
 
     printf("Pilihan Kereta dari Stasiun ");
-    const char* stasiun[] = {"Gambir", "Surabaya Gubeng", "Lempuyangan", "Bandung"};
+    char* stasiun[] = {"Gambir", "Surabaya Gubeng", "Lempuyangan", "Bandung"};
     printf("%s ke Stasiun %s:\n", stasiun[asal - 1], stasiun[tujuan - 1]);
 
     if (kereta[asal - 1][tujuan - 1][0][0] != '\0') {
@@ -338,7 +339,7 @@ void chooseSeat(int* seat){
 
 
 void tampilkanPilihanKelas() {
-    const char* kelas[] = {"Ekonomi", "Bisnis", "Eksekutif"};
+    char* kelas[] = {"Ekonomi", "Bisnis", "Eksekutif"};
     printf("Pilihan Kelas Tiket:\n");
     for (int i = 0; i < 3; i++) {
         printf("%d. %s\n", i + 1, kelas[i]);
@@ -361,13 +362,41 @@ void addPassenger(char* nama, int usia, char* NIK, int NoKursi, char* stasiunTuj
 }
 
 
-void printBookingSummary(char* stasiunAsal, char* stasiunTujuan, int JmlPenumpang, char* KelasTiket, int* NoKursi, char* namaKereta) {
+int hitungTotalBiaya(int JmlPenumpang, int* usia, char* KelasTiket) {
+    int totalBiaya = 0;
+    int hargaDewasa = 0, hargaAnak = 0;
+
+    if (strcmp(KelasTiket, "Ekonomi") == 0) {
+        hargaDewasa = 120000;
+        hargaAnak = 100000;
+    } else if (strcmp(KelasTiket, "Bisnis") == 0) {
+        hargaDewasa = 150000;
+        hargaAnak = 130000;
+    } else if (strcmp(KelasTiket, "Eksekutif") == 0) {
+        hargaDewasa = 200000;
+        hargaAnak = 180000;
+    }
+
+    for (int i = 0; i < JmlPenumpang; i++) {
+        if (usia[i] > 4) {
+            totalBiaya += hargaDewasa;
+        } else {
+            totalBiaya += hargaAnak;
+        }
+    }
+
+    return totalBiaya;
+}
+
+
+void printBookingSummary(char* stasiunAsal, char* stasiunTujuan, int JmlPenumpang, char* KelasTiket, int* NoKursi, char* namaKereta, int totalBiaya) {
     Penumpang* temp = penumpang;
     printf("\n=== Ringkasan Pemesanan Tiket ===\n");
     printf("Stasiun Asal: %s\n", stasiunAsal);
     printf("Stasiun Tujuan: %s\n", stasiunTujuan);
     printf("Kereta: %s\n", namaKereta);
     printf("Jumlah Penumpang: %d\n", JmlPenumpang);
+    printf("\nTotal Biaya: %d\n", totalBiaya);
     
     for (int i = 0; i < JmlPenumpang; i++) {
         printf("Penumpang %d: \n", i + 1);
@@ -401,6 +430,15 @@ void checkTrainStatus() {
         printf("   Stasiun Tujuan: %s\n", temp->stasiunTujuan);
         printf("   Kelas Tiket: %s\n", temp->KelasTiket);
         printf("   Nama Kereta: %s\n", temp->namaKereta);
+        int biaya = 0;
+        if (strcmp(temp->KelasTiket, "Ekonomi") == 0) {
+            biaya = (temp->usia > 4) ? 120000 : 100000;
+        } else if (strcmp(temp->KelasTiket, "Bisnis") == 0) {
+            biaya = (temp->usia > 4) ? 150000 : 130000;
+        } else if (strcmp(temp->KelasTiket, "Eksekutif") == 0) {
+            biaya = (temp->usia > 4) ? 200000 : 180000;
+        }
+        printf("   Biaya: Rp %d\n", biaya);
         printf("========================\n");
         temp = temp->next;
         counter++;
